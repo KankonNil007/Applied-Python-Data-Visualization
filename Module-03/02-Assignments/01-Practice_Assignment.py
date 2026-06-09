@@ -42,14 +42,16 @@ def run_static_plot():
     """Generates and displays a static plot of the distributions."""
     print("Generating static plot...")
     # Generate 10,000 samples from the normal, gamma, exponential, and uniform distributions
-    x1_val = np.random.normal(-2.5, 1, 10000)
+    # Draw 10,000 samples from the probability distributions (Normal, Gamma, Exponential, Uniform)
+x1_val = np.random.normal(-2.5, 1, 10000)
     x2_val = np.random.gamma(2, 1.5, 10000)
     x3_val = np.random.exponential(2, 10000) + 7
     x4_val = np.random.uniform(14, 20, 10000)
 
     # Plot the histograms
     plt.figure(figsize=(9, 4))
-    plt.hist(x1_val, density=True, bins=20, alpha=0.5, color=colors[0], label='x1 Normal')
+    # Plot histograms for each distribution, using density=True to get probability density
+plt.hist(x1_val, density=True, bins=20, alpha=0.5, color=colors[0], label='x1 Normal')
     plt.hist(x2_val, density=True, bins=20, alpha=0.5, color=colors[1], label='x2 Gamma')
     plt.hist(x3_val, density=True, bins=20, alpha=0.5, color=colors[2], label='x3 Exponential')
     plt.hist(x4_val, density=True, bins=20, alpha=0.5, color=colors[3], label='x4 Uniform')
@@ -230,7 +232,8 @@ def run_interactive_dashboard():
         is_paused = False
         btn_pause.label.set_text("Pause")
         
-        anim = animation.FuncAnimation(
+        # Initialize the Matplotlib FuncAnimation object to run sampling update steps
+anim = animation.FuncAnimation(
             fig_plots, 
             update, 
             frames=frame_steps, 

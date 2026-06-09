@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 print("Step 0: Generating station locations map...")
 
 # Get the location information for this dataset
+# Load station location metadata (contains lat/lon coordinates)
 bins_df = pd.read_csv('assets/BinSize_d400.csv')
 station_locations = bins_df[bins_df['hash'] == 'fb441e62df2d58994928907a91895ec62c2c42e6cd075c2700843b89']
 
@@ -44,6 +45,8 @@ print("\nStep 1: Loading and transforming dataset...")
 df = pd.read_csv('assets/fb441e62df2d58994928907a91895ec62c2c42e6cd075c2700843b89.csv')
 
 # Transform Data_Value column from tenths of degrees C to degrees Celsius
+# Transform Data_Value column: raw data is in tenths of degrees Celsius (e.g., 251 = 25.1 C)
+# Dividing by 10 converts it into standard degrees Celsius for intuitive interpretation
 df['Data_Value'] = df['Data_Value'] / 10.0
 
 # Extract TMAX and TMIN rows into separate DataFrames (~80,000 entries each)
@@ -60,6 +63,7 @@ print(f"tmin_df entries: {tmin_df.shape[0]}")
 print("\nStep 2: Processing daily station records (excluding leap days)...")
 
 # Drop records for February 29th (leap days) to align with standard 365-day year
+# Filter out leap year days (Feb 29) to keep standard 365-day alignments across all years
 tmax_df = tmax_df[~tmax_df['Date'].str.endswith('-02-29')]
 tmin_df = tmin_df[~tmin_df['Date'].str.endswith('-02-29')]
 
@@ -111,6 +115,8 @@ print(f"min_2015 records (expected 365): {min_2015.shape[0]}")
 print("\nStep 4: Identifying anomalies and generating matplotlib visualization...")
 
 # Identify 2015 temperatures that broke the 10-year records
+# Identify record-breaking temperature anomalies in 2015
+# We compare 2015 daily highs/lows against the 10-year decade max/min envelopes
 broken_high = max_2015[max_2015['Data_Value'] > decade_max['Data_Value']]
 broken_low = min_2015[min_2015['Data_Value'] < decade_min['Data_Value']]
 
@@ -125,6 +131,8 @@ plt.plot(decade_max['Data_Value'], color='#fc8d59', alpha=0.8, linewidth=1.5, la
 plt.plot(decade_min['Data_Value'], color='#91bfdb', alpha=0.8, linewidth=1.5, label='Record Low (2005-2014)')
 
 # Shade the historical envelope area
+# Fill/shade the historical max-min temperature envelope range
+# This creates a visually muted baseline to emphasize the 2015 temperature spikes
 plt.gca().fill_between(range(365), 
                        decade_min['Data_Value'], 
                        decade_max['Data_Value'], 
@@ -149,6 +157,8 @@ plt.yticks(fontsize=9, color='#555555')
 plt.xlim(0, 365)
 
 # Tufte-style design: Remove chart junk (top and right spines) and mute remaining borders
+# Apply Edward Tufte's data-ink ratio optimization:
+# Remove chart-junk spines (top/right borders) and soften left/bottom coordinates
 plt.gca().spines['top'].set_visible(False)
 plt.gca().spines['right'].set_visible(False)
 plt.gca().spines['left'].set_color('#cccccc')

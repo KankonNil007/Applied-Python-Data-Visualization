@@ -14,17 +14,22 @@ df = pd.DataFrame([np.random.normal(32000, 200000, 3650),
                   index=[1992, 1993, 1994, 1995])
 
 # Calculate statistics for each year
+# Calculate the sample mean (center points of our bars)
 means = df.mean(axis=1)
 stds = df.std(axis=1)
 n = df.shape[1]
+# Calculate the Standard Error (SE) of the sample mean: SE = std_dev / sqrt(sample_size)
 se = stds / np.sqrt(n)
 
 # 95% confidence interval half-width: z = 1.96 (for sample size 3650)
+# Calculate the 95% Confidence Interval half-width using z = 1.96
 yerr = 1.96 * se
 years = df.index.astype(str)
 
 # 2. Probability mapping calculation
 # P(Mean > Y) = standard normal CDF((Mean - Y) / SE)
+# Compute statistical probabilities: P(true mean > Y-threshold)
+# Uses normal cumulative density function (CDF) to find probability ranges
 def get_probabilities(y_val):
     try:
         from scipy.stats import norm
@@ -44,7 +49,12 @@ fig, ax = plt.subplots(figsize=(10, 6.5))
 fig.canvas.manager.set_window_title('Assignment 3: Custom Visualization')
 
 # Select divergent colormap (Blue -> White -> Red reversed, so Red means above, Blue means below)
-cmap = plt.colormaps.get_cmap('RdBu_r')
+# Select a divergent colormap (RdBu_r: Red-White-Blue reversed)
+# Red indicates probability closer to 1 (value safely above threshold)
+# Blue indicates probability closer to 0 (value safely below threshold)
+# White represents ~0.5 probability (overlapping confidence range)
+cap = plt.colormaps.get_cmap('RdBu_r')
+cmap = cap
 norm = Normalize(vmin=0, vmax=1)
 
 # Plot the bars with error bars (95% CI)
@@ -118,6 +128,7 @@ def onclick(event):
     fig.canvas.draw_idle()
 
 # Connect the click event to the handler
+# Bind mouse button clicks to the interactive callback function
 fig.canvas.mpl_connect('button_press_event', onclick)
 
 # Add instructional prompt at the bottom of the figure
